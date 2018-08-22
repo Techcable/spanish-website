@@ -42,14 +42,6 @@ impl ArithmeticKind {
             ArithmeticKind::Division => &["dividido por", "dividido entre"],
         }
     }
-    pub fn verb(self) -> &'static str {
-        match self {
-            ArithmeticKind::Addition => "plus",
-            ArithmeticKind::Subtraction => "minus",
-            ArithmeticKind::Multiplication => "times",
-            ArithmeticKind::Division => "divided by",
-        }
-    }
     pub fn symbol(self) -> char {
         match self {
             ArithmeticKind::Addition => '+',
