@@ -108,7 +108,7 @@ impl SpanishShape {
             SpanishShape::Square => "cuadrado",
             SpanishShape::Circle => "círculo",
             SpanishShape::Triangle => "triángulo",
-            SpanishShape::Oval => "óvalo",
+            SpanishShape::Oval => "ovalado",
             SpanishShape::Rectangle => "rectángulo",
             SpanishShape::Star => "estrella",
             SpanishShape::Heart => "corazón",
