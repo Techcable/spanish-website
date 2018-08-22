@@ -73,8 +73,7 @@ $(function() {
     })
     const QUESTION_AMOUNT = 20;
     function questionKind() {
-        // TODO: Let people change this
-        return "number";
+        return $("#questionKind").val();
     }
     var nameChart = null;
     var similarityWorker = null;

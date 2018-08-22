@@ -18,7 +18,7 @@ use rocket::response::{NamedFile};
 use rocket_contrib::Json;
 use parking_lot::Mutex;
 
-use spanish_website::{NumberProblemKind, Question, SpanishProblemKind};
+use spanish_website::{Question, SpanishProblemKind};
 
 #[derive(Debug, Deserialize)]
 struct QuestionRequest {
