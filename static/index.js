@@ -104,6 +104,7 @@ $(function() {
     $("#loadQuestions").on('click', function() {
         updateScoreboard(0, 0);
         remainingQuestions = [];
+        correctQuestions = 0;
         renderQuestion(null);
         new QuestionRequest(questionKind(), QUESTION_AMOUNT).run(function(response) {
             var jsonQuestions = response.questions.map(function(question) { return question.question; });
