@@ -1,3 +1,95 @@
+function damerau_levenshtein(first, second) {
+    "use strict";
+    // TODO: Support non-BMP characters (like that's ever going to happen)
+    if (first == second) return 0;
+    var firstLen = first.length;
+    var secondLen = second.length;
+    if (firstLen == 0) return secondLen;
+    if (secondLen == 0) return firstLen;
+
+
+    var distances = [];
+    for (var i = 0; i < firstLen + 2; i++) {
+        distances.push(Array(secondLen + 2).fill(0));
+    }
+    const maxDistance = firstLen + secondLen;
+    distances[0][0] = maxDistance;
+
+    for (var i = 0; i < firstLen + 1; i++) {
+        distances[i + 1][0] = maxDistance;
+        distances[i + 1][1] = i;
+    }
+    for (var j = 0; j < secondLen + 1; j++) {
+        distances[0][j + 1] = maxDistance;
+        distances[1][j + 1] = j;
+    }
+
+    var chars = new Map();
+
+    for (var i = 1; i < firstLen + 1; i++) {
+        var db = 0;
+        for (var j = 1; j < secondLen + 1; j++) {
+            var k = chars.get(second.charAt(j - 1));
+            if (typeof k == 'undefined') {
+                k = 0;
+            }
+            const l = db;
+            var cost = 1;
+            if (first[i - 1] == second[j - 1]) {
+                cost = 0;
+                db = j;
+            }
+
+            const substitutionCost = distances[i][j] + cost;
+            const insertionCost = distances[i][j + 1] + 1;
+            const deletionCost = distances[i + 1][j] + 1;
+            const transpositionCost = distances[k][l] +
+                (i - k -1) + 1 + (j - l - 1);
+            distances[i + 1][j + 1] = Math.min(
+                substitutionCost,
+                insertionCost,
+                deletionCost,
+                transpositionCost
+            );
+        }
+        chars.set(first[i - 1], i);
+    }
+    return distances[firstLen + 1][secondLen + 1];
+}
+
+// Utils
+function createDiffFragment(original, revised, color_function) {
+    const diff = JsDiff.diffChars(original, revised);
+    var fragment = document.createDocumentFragment();
+
+    diff.forEach(function(part) {
+        var color = color_function(part);
+        if (color != null) {
+            var span = document.createElement('span');
+            span.style.color = color;
+            span.appendChild(document.createTextNode(part.value));
+            fragment.appendChild(span);
+        }
+    })
+
+    return fragment;
+}
+
+function minBy(target_array, func) {
+    if (target_array.length < 1) return undefined;
+    var smallest_element = target_array[0];
+    var smallest_value = func(smallest_element);
+    for (var i = 1; i < target_array.length; i++) {
+        var element = target_array[i];
+        var value = func(element);
+        if (value < smallest_value) {
+            smallest_element = element;
+            smallest_value = value;
+        }
+    }
+    return smallest_element;
+}
+
 $(function() {
     "use strict";
     class Question {
@@ -88,9 +180,15 @@ $(function() {
     }
     function renderQuestion(question) {
         if (question == null) {
-            $("#question").text("Question: Loading");
+            $("#question").empty();
+            // $("#questionSpinner").removeAttr("hidden");
+            $("#answerStatus").empty();
+            $("#continueButton").attr("hidden", "hidden");
         } else {
             $("#question").html(question.question);
+            // $("#questionSpinner").attr("hidden", "hidden");
+            $("#answerStatus").empty();
+            $("#continueButton").attr("hidden", "hidden");
         }
     }
     var remainingQuestions = [];
@@ -114,6 +212,7 @@ $(function() {
         });
     });
     $("#answerButton").on('click', function() {
+        $("#answerStatus").empty();
         var answer = $("#answerInput").val();
         var question = remainingQuestions.pop();
         if (question === undefined) {
@@ -121,11 +220,34 @@ $(function() {
             return
         }
         if (question.answers.includes(answer)) {
-            alert(`Correct answer: ${answer}`)
+            $("#answerStatus").append(`<div class="alert alert-success" role="alert">Correct answer</div>`);
             correctQuestions += 1;
         } else {
-            alert(`Incorrect answer ${answer}, expected ${question.answers}`)
+            const actual = answer;
+            const expected = question.answers;
+            const closestExpected = minBy(expected, function(element) {
+                return damerau_levenshtein(element, actual);
+            });
+            $("#answerStatus").append(`<div class="alert alert-danger" role="alert">Incorrect answer</div>`);
+            // NOTE: Modeled after Quizlet
+            var correctDiff = createDiffFragment(closestExpected, actual, function(part) {
+                if (part.added) return 'green';
+                else if (part.removed) return null;
+                else return 'black';
+            })
+            var yourDiff = createDiffFragment(closestExpected, actual, function(part) {
+                if (part.added) return null;
+                else if (part.removed) return 'red';
+                else return 'black';
+            });
+            $("#answerStatus").append($("<p>").append("Correct answer: ").append(correctDiff));
+            $("#answerStatus").append($("<p>").append("Your answer: ").append(yourDiff))
         }
+        $("#continueButton").removeAttr("hidden");
+    })
+    $("#continueButton").on('click', function() {
+        console.log("Advancing to next question")
+        $("#answerStatus").empty();
         updateScoreboard(correctQuestions, totalQuestions());
         renderQuestion(currentQuestion());
     })

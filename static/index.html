@@ -35,6 +35,7 @@
         <div class = "container">
             <div class="row">
                 <div class="col-lg">
+                    <!-- TODO: It'd be nice to make this part of the nav somehow -->
                     <form id="questionForm">
                         <label for="questionKind">Question mode:</label>
                         <select id="questionKind" class="form-control">
@@ -44,10 +45,16 @@
                         <button type="button" id="loadQuestions" class="btn btn-primary">Load Questions</button>
                     </form>
                     <p id="score">Score: undefined, Completed: 0/20</p>
-                    <p id="question">Question: Loading</p>
                 </div>
             </div>
             <div class="row">
+                <div class="col-lg">
+                    <h2>Question</h2>
+                    <!-- TODO: Find a good icon for no questions loaded yet
+                         Maybe I need to just make this whole row hidden when we have no questions?
+                     -->
+                    <div id="question"></div>
+                </div>
                 <div class="col-lg">
                     <form id="answerForm">
                         <div class="form-group">
@@ -56,6 +63,11 @@
                         </div>
                         <button type="button" id="answerButton" class="btn btn-primary">Submit</button>
                     </form>
+                    <h3>Status</h3>
+                    <div id="answerStatus">
+
+                    </div>
+                    <button hidden="hidden" type="button" id="continueButton" class="btn btn-primary">Next Quesetion</button>
                 </div>
             </div>
         </div>
@@ -64,6 +76,9 @@
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+        <!-- Javascript Diff Implementation -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/3.5.0/diff.min.js" integrity="sha256-i/ln3ud5Grfa72JdQZfmvpIRZLGRx7uGxNKgoy10S3A=" crossorigin="anonymous"></script>
 
         <!-- Our Javascript -->
         <script src="index.js"></script>
