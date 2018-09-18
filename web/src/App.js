@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Alert, Form, Label, Button, Card, CardBody,
+import { Alert, Form, Label, Button, Card, CardBody, Progress,
     CardHeader, CardText, Input, FormGroup, Container, Col, Row } from 'reactstrap';
 import { damerau_levenshtein, minBy, createDiffFragment, allElementsEqual } from './utils.js';
 import $ from 'jquery';
@@ -208,7 +208,9 @@ class SessionRow extends Component {
         this.state = {
             remainingQuestions: null,
             questions: null,
-            gradedQuestion: null
+            gradedQuestion: null,
+            correctQuestions: 0,
+            completedQuestions: 0
         };
         // This binding is necessary to make `this` work in the callback
         this.handleAnswer = this.handleAnswer.bind(this);
@@ -227,7 +229,12 @@ class SessionRow extends Component {
         });
     }
     handleAnswer(answer) {
-        this.setState({gradedQuestion: new GradedQuestion(this.currentQuestion(), answer)});
+        const gradedQuestion = new GradedQuestion(this.currentQuestion(), answer);
+        this.setState((state, props) => ({
+            gradedQuestion,
+            correctQuestions: state.correctQuestions + gradedQuestion.correct,
+            completedQuestions: state.completedQuestions + 1
+        }))
     }
     currentQuestion() {
         if (!this.hasQuestions) throw new Error("Missing questions");
@@ -240,6 +247,7 @@ class SessionRow extends Component {
             return {
                 remainingQuestions: props.questions != null ? props.questions.slice() : null,
                 questions: props.questions != null ? props.questions.slice() : null,
+                correctQuestions: 0
             };
         } else {
             return null;
@@ -247,17 +255,26 @@ class SessionRow extends Component {
     }
     render() {
         if (!this.hasQuestions) return null;
+        const incorrectQuestions = this.state.completedQuestions - this.state.correctQuestions;
+        const correctPercentage = (this.state.correctQuestions / this.state.questions.length) * 100;
+        const incorrectPercentage = (incorrectQuestions / this.state.questions.length) * 100;
         return (
-            <React.Fragment>
-                <Col size="lg">
-                    <QuestionCard question={this.currentQuestion()} />
-                </Col>
-                <Col size="lg">
-                    <AnswerForm onSubmitAnswer={this.handleAnswer} />
-                    <AnswerStatusCard onNextQuestion={this.nextQuestion}
-                        gradedQuestion={this.state.gradedQuestion} />
-                </Col>
-            </React.Fragment>
+            <Container>
+                <Progress multi>
+                    <Progress bar color="success" value={correctPercentage} />
+                    <Progress bar color="danger" value={incorrectPercentage} />
+                </Progress>
+                <Row>
+                    <Col size="lg">
+                        <QuestionCard question={this.currentQuestion()} />
+                    </Col>
+                    <Col size="lg">
+                        <AnswerForm onSubmitAnswer={this.handleAnswer} />
+                        <AnswerStatusCard onNextQuestion={this.nextQuestion}
+                            gradedQuestion={this.state.gradedQuestion} />
+                    </Col>
+                </Row>
+            </Container>
         );
     }
 }
