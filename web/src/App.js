@@ -156,12 +156,12 @@ function AnswerStatus(props) {
         );
     } else {
         // NOTE: Modeled after Quizlet
-        const correctDiff = createDiffFragment(gradedQuestion.closestExpected, gradedQuestion.actualAnswer, (part) => {
+        const correctDiff = createDiffFragment(gradedQuestion.actualAnswer, gradedQuestion.closestExpected, (part) => {
             if (part.added) return 'green';
             else if (part.removed) return null;
             else return 'black';
         });
-        const yourDiff = createDiffFragment(gradedQuestion.closestExpected, gradedQuestion.actualAnswer, (part) => {
+        const yourDiff = createDiffFragment(gradedQuestion.actualAnswer, gradedQuestion.closestExpected, (part) => {
             if (part.added) return null;
             else if (part.removed) return 'red';
             else return 'black';
