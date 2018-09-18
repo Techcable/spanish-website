@@ -28,16 +28,6 @@ struct QuestionResponse {
     questions: Vec<Question>
 }
 
-#[get("/")]
-fn index() -> io::Result<NamedFile> {
-    NamedFile::open("static/index.html")
-}
-
-#[get("/<file..>")]
-fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/").join(file)).ok()
-}
-
 const MAXIMUM_QUESTIONS: u32 = 100;
 #[post("/api/questions", format = "application/json", data = "<request>")]
 fn questions(request: Json<QuestionRequest>) -> Json<QuestionResponse> {
@@ -52,5 +42,5 @@ fn questions(request: Json<QuestionRequest>) -> Json<QuestionResponse> {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![index, files, questions]).launch();
+    rocket::ignite().mount("/", routes![questions]).launch();
 }
